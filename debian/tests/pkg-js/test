@@ -1,0 +1,1 @@
+tap --100 -J `ls test/*.js | grep -v test/long-stack-traces.js`

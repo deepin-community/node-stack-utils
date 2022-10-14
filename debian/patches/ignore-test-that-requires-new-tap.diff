@@ -1,0 +1,23 @@
+Description: ignore test that requires tap 14
+Author: Xavier Guimard <yadd@debian.org>
+Forwarded: not-needed
+Last-Update: 2020-01-24
+
+--- a/test/test.js
++++ b/test/test.js
+@@ -91,6 +91,7 @@
+   t.end();
+ });
+ 
++/*
+ t.test('captureString: with startStack function', t => {
+   const stack = new StackUtils({internals: internals(), cwd: utils.fixtureDir});
+   const capture = new CaptureFixture(stack);
+@@ -102,6 +103,7 @@
+   ]));
+   t.end();
+ });
++*/
+ 
+ t.test('captureString: with limit', t => {
+   const stack = new StackUtils({internals: internals(), cwd: utils.fixtureDir});
