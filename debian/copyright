@@ -5,7 +5,7 @@ Source: https://github.com/tapjs/stack-utils#readme
  https://registry.npmjs.org/@types/stack-utils
 
 Files: *
-Copyright: 2016-2018 Isaac Z. Schlueter <i@izs.me>
+Copyright: 2016-2022 Isaac Z. Schlueter <i@izs.me>
  2016-2017 James Talmage <james@talmage.io> (github.com/jamestalmage) and contributors
  2017 Mark Wubben <mark@novemberborn.net>
  2017 Ben McCurdy <bpmccurdy@gmail.com>
@@ -20,6 +20,7 @@ License: Expat
 Files: debian/*
 Copyright: 2017 Abhishek Lolage <abhisheklolage@gmail.com>
  2017 Bastien Roucariès <rouca@debian.org>
+ 2022 Yadd <yadd@debian.org>
 License: Expat
 
 License: Expat

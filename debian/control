@@ -7,13 +7,14 @@ Testsuite: autopkgtest-pkg-nodejs
 Priority: optional
 Build-Depends:
  debhelper-compat (= 13)
+ , node-bluebird <!nocheck>
  , node-q <!nocheck>
- , node-tap (>= 8.0.0) <!nocheck>
+ , node-tap <!nocheck>
  , node-pify <!nocheck>
  , node-lodash-packages <!nocheck>
  , node-escape-string-regexp <!nocheck>
  , dh-sequence-nodejs
-Standards-Version: 4.5.1
+Standards-Version: 4.6.1
 Vcs-Browser: https://salsa.debian.org/js-team/node-stack-utils
 Vcs-Git: https://salsa.debian.org/js-team/node-stack-utils.git
 Homepage: https://github.com/tapjs/stack-utils#readme
@@ -23,9 +24,9 @@ Package: node-stack-utils
 Architecture: all
 Depends:
  ${misc:Depends}
- , nodejs
  , node-escape-string-regexp
 Provides: ${nodejs:Provides}
+Multi-Arch: foreign
 Description: Captures and cleans stack traces
  This modules provides API for working with nodejs stack traces.
  Ones could create new stack traces instance simulating for instance
