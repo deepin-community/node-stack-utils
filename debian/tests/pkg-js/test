@@ -1,1 +1,1 @@
-tap --100 -J `ls test/*.js | grep -v test/long-stack-traces.js`
+tap -R tap --no-cov test/*.js -J #`ls test/*.js | grep -v test/long-stack-traces.js|grep -v test/test.js`

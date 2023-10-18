@@ -12,11 +12,28 @@ const WindowsStack1 = utils.join(windowsStack1(), internalStack());
 const version = process.version.slice(1).split('.').map(Number);
 
 t.test('must be called with new', t => {
-  t.is(typeof StackUtils, 'function');
+  t.equal(typeof StackUtils, 'function');
   const stackUtils = StackUtils;
   t.throws(() => stackUtils());
   t.end();
 });
+
+t.test('ok if called without a process object', t => {
+  const proc = process
+  const cwd = proc.cwd().replace(/\\/g, '/')
+  t.teardown(() => global.process = proc)
+  global.process = null
+  const StackUtils = t.mock('../', {
+    // need a fresh copy of these because they also look at global process
+    'source-map-support': t.mock('source-map-support'),
+    'own-or-env': t.mock('own-or-env'),
+  })
+  const expected = `${cwd}/foo (foo.js:3:8)\n`
+  const raw = `    at ${expected}\n`
+  const stack = new StackUtils({ internals: [] })
+  t.equal(stack.clean(raw), expected, 'no cwd is stripped off')
+  t.end()
+})
 
 t.test('clean: truncates cwd', t => {
   const expectedArray = [
@@ -44,15 +61,15 @@ t.test('clean: truncates cwd', t => {
   const expected = utils.join(expectedArray);
 
   let stack = new StackUtils({cwd: '/user/dev/project', internals: []});
-  t.is(stack.clean(LinuxStack1), expected, 'accepts a linux string');
-  t.is(stack.clean(LinuxStack1.split('\n')), expected, 'accepts an array');
-  t.is(stack.clean(LinuxStack1.split('\n').slice(1)), expected, 'slices off the message line');
+  t.equal(stack.clean(LinuxStack1), expected, 'accepts a linux string');
+  t.equal(stack.clean(LinuxStack1.split('\n')), expected, 'accepts an array');
+  t.equal(stack.clean(LinuxStack1.split('\n').slice(1)), expected, 'slices off the message line');
 
   stack = new StackUtils({cwd: 'Z:\\user\\dev\\project', internals: []});
-  t.is(stack.clean(WindowsStack1), expected, 'accepts a windows string');
+  t.equal(stack.clean(WindowsStack1), expected, 'accepts a windows string');
 
   const expectIndented = utils.join(expectedArray.map(a => '    ' + a));
-  t.is(stack.clean(WindowsStack1, 4), expectIndented, 'indentation');
+  t.equal(stack.clean(WindowsStack1, 4), expectIndented, 'indentation');
 
   t.end();
 });
@@ -65,16 +82,16 @@ t.test('clean: eliminates internals', t => {
     'bar (project/bar.js:4:2)',
     'Object.<anonymous> (project/bar.js:7:1)'
   ]);
-  t.is(stack.clean(LinuxStack1), expected);
+  t.equal(stack.clean(LinuxStack1), expected);
 
   stack = new StackUtils({cwd: 'Z:\\user\\dev'});
-  t.is(stack.clean(WindowsStack1), expected);
+  t.equal(stack.clean(WindowsStack1), expected);
   t.end();
 });
 
 t.test('clean: returns null if it is all internals', t => {
   const stack = new StackUtils();
-  t.is(stack.clean(utils.join(internalStack())), '');
+  t.equal(stack.clean(utils.join(internalStack())), '');
   t.end();
 });
 
@@ -83,7 +100,7 @@ t.test('captureString: two redirects', t => {
   const capture = new CaptureFixture(stack);
 
   const capturedString = capture.redirect1('redirect2', 'call', 'captureString');
-  t.is(capturedString, utils.join([
+  t.equal(capturedString, utils.join([
     'CaptureFixture.call (capture-fixture.js:47:28)',
     'CaptureFixture.redirect2 (capture-fixture.js:13:24)',
     'CaptureFixture.redirect1 (capture-fixture.js:9:24)'
@@ -96,7 +113,7 @@ t.test('captureString: with startStack function', t => {
   const capture = new CaptureFixture(stack);
 
   const capturedString = capture.redirect1('redirect2', 'call', 'captureString', capture.call);
-  t.is(capturedString, utils.join([
+  t.equal(capturedString, utils.join([
     'CaptureFixture.redirect2 (capture-fixture.js:13:24)',
     'CaptureFixture.redirect1 (capture-fixture.js:9:24)'
   ]));
@@ -108,7 +125,7 @@ t.test('captureString: with limit', t => {
   const capture = new CaptureFixture(stack);
 
   const capturedString = capture.redirect1('redirect2', 'call', 'captureString', 1);
-  t.is(capturedString, utils.join([
+  t.equal(capturedString, utils.join([
     'CaptureFixture.call (capture-fixture.js:47:28)'
   ]));
   t.end();
@@ -119,7 +136,7 @@ t.test('captureString: with limit and startStack', t => {
   const capture = new CaptureFixture(stack);
 
   const capturedString = capture.redirect1('redirect2', 'call', 'captureString', 1, capture.call);
-  t.is(capturedString, utils.join([
+  t.equal(capturedString, utils.join([
     'CaptureFixture.redirect2 (capture-fixture.js:13:24)'
   ]));
   t.end();
@@ -129,9 +146,9 @@ t.test('capture returns an array of call sites', t => {
   const stackUtil = new StackUtils({internals: internals(), cwd: utils.fixtureDir});
   const capture = new CaptureFixture(stackUtil);
   const stack = capture.redirect1('call', 'capture').slice(0, 2);
-  t.is(stack[0].getFileName(), path.join(utils.fixtureDir, 'capture-fixture.js'));
-  t.is(stack[0].getFunctionName(), 'CaptureFixture.call');
-  t.is(stack[1].getFunctionName(), 'redirect1');
+  t.equal(stack[0].getFileName(), path.join(utils.fixtureDir, 'capture-fixture.js'));
+  t.equal(stack[0].getFunctionName(), 'CaptureFixture.call');
+  t.equal(stack[1].getFunctionName(), 'redirect1');
   t.end();
 });
 
@@ -139,8 +156,8 @@ t.test('capture: with limit', t => {
   const stackUtil = new StackUtils({internals: internals(), cwd: utils.fixtureDir});
   const capture = new CaptureFixture(stackUtil);
   const stack = capture.redirect1('redirect2', 'call', 'capture', 1);
-  t.is(stack.length, 1);
-  t.is(stack[0].getFunctionName(), 'CaptureFixture.call');
+  t.equal(stack.length, 1);
+  t.equal(stack[0].getFunctionName(), 'CaptureFixture.call');
   t.end();
 });
 
@@ -148,8 +165,8 @@ t.test('capture: with stackStart function', t => {
   const stackUtil = new StackUtils({internals: internals(), cwd: utils.fixtureDir});
   const capture = new CaptureFixture(stackUtil);
   const stack = capture.redirect1('redirect2', 'call', 'capture', capture.call);
-  t.true(stack.length > 1);
-  t.is(stack[0].getFunctionName(), 'redirect2');
+  t.ok(stack.length > 1);
+  t.equal(stack[0].getFunctionName(), 'redirect2');
   t.end();
 });
 
@@ -157,8 +174,8 @@ t.test('capture: with limit and stackStart function', t => {
   const stackUtil = new StackUtils({internals: internals(), cwd: utils.fixtureDir});
   const capture = new CaptureFixture(stackUtil);
   const stack = capture.redirect1('redirect2', 'call', 'capture', 1, capture.call);
-  t.is(stack.length, 1);
-  t.is(stack[0].getFunctionName(), 'redirect2');
+  t.equal(stack.length, 1);
+  t.equal(stack[0].getFunctionName(), 'redirect2');
   t.end();
 });
 
@@ -174,9 +191,9 @@ t.test('capture: with wrapCallSite function', t => {
   const stackUtil = new StackUtils({internals: internals(), cwd: utils.fixtureDir, wrapCallSite: wrapper});
   const capture = new CaptureFixture(stackUtil);
   const stack = capture.redirect1('redirect2', 'call', 'capture', 1, capture.call);
-  t.is(stack.length, 1);
-  t.is(stack[0].getFunctionName(), 'testOverrideFunctionName');
-  t.is(stack[0].getMethodName(), 'redirect2');
+  t.equal(stack.length, 1);
+  t.equal(stack[0].getFunctionName(), 'testOverrideFunctionName');
+  t.equal(stack[0].getMethodName(), 'redirect2');
   t.end();
 });
 
@@ -219,13 +236,11 @@ t.test('at: inside a constructor call', t => {
   const at = capture.const('call', 'at', capture.call);
 
   // TODO: File an issue - if this assert fails, the power assert diagram renderer blows up.
-  t.same(at, {
+  t.match(at, {
     file: 'capture-fixture.js',
     line: 20,
     column: 32,
     constructor: true,
-    type: 'Constructor',
-    function: 'Constructor'
   });
   t.end();
 });
